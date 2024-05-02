@@ -1,0 +1,4 @@
+<?
+$MESS["SITE_TEMPLATE_NAME"] = "multiverse";
+$MESS["SITE_TEMPLATE_DESCRIPTION"] = "";
+?>
