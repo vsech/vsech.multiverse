@@ -1,101 +1,124 @@
-<?
-global $MESS;
-$strPath2Lang = str_replace("\\", "/", __FILE__);
-$strPath2Lang = substr($strPath2Lang, 0, strlen($strPath2Lang)-strlen("/install/index.php"));
-include(GetLangFileName($strPath2Lang."/lang/", "/install/index.php"));
+<?php
 
-Class vsech_multiverse extends CModule
+use Bitrix\Main\Application;
+use Bitrix\Main\EventManager;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ModuleManager;
+use Vsech\Multiverse\SiteCorporate;
+
+Loc::loadMessages(__FILE__);
+
+class vsech_multiverse extends CModule
 {
-	var $MODULE_ID = "vsech.multiverse";
-	var $MODULE_VERSION;
-	var $MODULE_VERSION_DATE;
-	var $MODULE_NAME;
-	var $MODULE_DESCRIPTION;
-	var $MODULE_CSS;
-	var $MODULE_GROUP_RIGHTS = "Y";
+    public $MODULE_ID = 'vsech.multiverse';
+    public $MODULE_VERSION;
+    public $MODULE_VERSION_DATE;
+    public $MODULE_NAME;
+    public $MODULE_DESCRIPTION;
+    public $PARTNER_NAME;
+    public $PARTNER_URI;
+    public $MODULE_GROUP_RIGHTS = 'Y';
 
-	function vsech_multiverse()
-	{
-		$arModuleVersion = array();
+    public function __construct()
+    {
+        $arModuleVersion = [];
 
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-		include($path."/version.php");
+        include __DIR__ . '/version.php';
 
-		$this->MODULE_VERSION = $arModuleVersion["VERSION"];
-		$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
+        if (!empty($arModuleVersion['VERSION'])) {
+            $this->MODULE_VERSION = $arModuleVersion['VERSION'];
+        }
 
-		$this->MODULE_NAME = GetMessage("VSECH_INSTALL_NAME");
-		$this->MODULE_DESCRIPTION = GetMessage("VSECH_INSTALL_DESCRIPTION");
-		$this->PARTNER_NAME = GetMessage("SPER_PARTNER");
-		$this->PARTNER_URI = GetMessage("PARTNER_URI");
-	}
+        if (!empty($arModuleVersion['VERSION_DATE'])) {
+            $this->MODULE_VERSION_DATE = $arModuleVersion['VERSION_DATE'];
+        }
 
+        $this->MODULE_NAME = Loc::getMessage('VSECH_INSTALL_NAME');
+        $this->MODULE_DESCRIPTION = Loc::getMessage('VSECH_INSTALL_DESCRIPTION');
+        $this->PARTNER_NAME = Loc::getMessage('VSECH_PARTNER_NAME');
+        $this->PARTNER_URI = Loc::getMessage('VSECH_PARTNER_URI');
+    }
 
-	function InstallDB($install_wizard = true)
-	{
-		global $DB, $DBType, $APPLICATION;
+    public function installDB(array $installConfig = [])
+    {
+        ModuleManager::registerModule($this->MODULE_ID);
 
-		RegisterModule("vsech.multiverse");
-		RegisterModuleDependences("main", "OnBeforeProlog", "vsech.multiverse", "CSiteCorporate", "ShowPanel");
+        EventManager::getInstance()->registerEventHandler(
+            'main',
+            'OnBeforeProlog',
+            $this->MODULE_ID,
+            SiteCorporate::class,
+            'showPanel'
+        );
 
-		return true;
-	}
+        return true;
+    }
 
-	function UnInstallDB($arParams = Array())
-	{
-		global $DB, $DBType, $APPLICATION;
+    public function uninstallDB(array $arParams = [])
+    {
+        EventManager::getInstance()->unRegisterEventHandler(
+            'main',
+            'OnBeforeProlog',
+            $this->MODULE_ID,
+            SiteCorporate::class,
+            'showPanel'
+        );
 
-		UnRegisterModuleDependences("main", "OnBeforeProlog", "vsech.multiverse", "CSiteCorporate", "ShowPanel"); 
-		UnRegisterModule("vsech.multiverse");
+        ModuleManager::unRegisterModule($this->MODULE_ID);
 
-		return true;
-	}
+        return true;
+    }
 
-	function InstallEvents()
-	{
-		return true;
-	}
+    public function installEvents()
+    {
+        return true;
+    }
 
-	function UnInstallEvents()
-	{
-		return true;
-	}
+    public function uninstallEvents()
+    {
+        return true;
+    }
 
-	function InstallFiles()
-	{
-		return true;
-	}
+    public function installFiles()
+    {
+        return true;
+    }
 
-	function InstallPublic()
-	{
-	}
+    public function uninstallFiles()
+    {
+        return true;
+    }
 
-	function UnInstallFiles()
-	{
-		return true;
-	}
+    public function installPublic()
+    {
+    }
 
-	function DoInstall()
-	{
-		global $APPLICATION, $step;
+    public function doInstall()
+    {
+        global $APPLICATION;
 
-		$this->InstallFiles();
-		$this->InstallDB(false);
-		$this->InstallEvents();
-		$this->InstallPublic();
+        $this->installFiles();
+        $this->installDB();
+        $this->installEvents();
+        $this->installPublic();
 
-		$APPLICATION->IncludeAdminFile(GetMessage("VSECH_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vsech.multiverse/install/step.php");
-	}
+        $APPLICATION->IncludeAdminFile(
+            Loc::getMessage('VSECH_INSTALL_TITLE'),
+            Application::getDocumentRoot() . '/bitrix/modules/' . $this->MODULE_ID . '/install/step.php'
+        );
+    }
 
-	function DoUninstall()
-	{
-		global $APPLICATION, $step;
+    public function doUninstall()
+    {
+        global $APPLICATION;
 
-		$this->UnInstallDB();
-		$this->UnInstallFiles();
-		$this->UnInstallEvents();
-		$APPLICATION->IncludeAdminFile(GetMessage("VSECH_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vsech.multiverse/install/unstep.php");
-	}
+        $this->uninstallDB();
+        $this->uninstallFiles();
+        $this->uninstallEvents();
+
+        $APPLICATION->IncludeAdminFile(
+            Loc::getMessage('VSECH_UNINSTALL_TITLE'),
+            Application::getDocumentRoot() . '/bitrix/modules/' . $this->MODULE_ID . '/install/unstep.php'
+        );
+    }
 }
-?>

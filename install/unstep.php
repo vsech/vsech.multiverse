@@ -1,8 +1,16 @@
-<?if(!check_bitrix_sessid()) return;?>
-<?
-echo CAdminMessage::ShowNote(GetMessage("MOD_UNINST_OK"));
+<?php
+
+use Bitrix\Main\Localization\Loc;
+
+if (!check_bitrix_sessid()) {
+    return;
+}
+
+Loc::loadMessages(__FILE__);
+
+echo CAdminMessage::ShowNote(Loc::getMessage('VSECH_MULTIVERSE_UNSTEP_OK'));
 ?>
-<form action="<?echo $APPLICATION->GetCurPage()?>">
-	<input type="hidden" name="lang" value="<?echo LANG?>">
-	<input type="submit" name="" value="<?echo GetMessage("MOD_BACK")?>">
-<form>
+<form action="<?= $APPLICATION->GetCurPage(); ?>">
+    <input type="hidden" name="lang" value="<?= LANG; ?>">
+    <input type="submit" value="<?= Loc::getMessage('VSECH_MULTIVERSE_STEP_BACK'); ?>">
+</form>
