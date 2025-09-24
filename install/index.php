@@ -2,6 +2,7 @@
 
 use Bitrix\Main\Application;
 use Bitrix\Main\EventManager;
+use Bitrix\Main\IO\Directory;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Vsech\Multiverse\SiteCorporate;
@@ -81,11 +82,32 @@ class vsech_multiverse extends CModule
 
     public function installFiles()
     {
+        $sourceDirectory = __DIR__ . '/wizards';
+        $targetDirectory = Application::getDocumentRoot() . '/bitrix/wizards';
+
+        if (Directory::isDirectoryExists($sourceDirectory)) {
+            CopyDirFiles($sourceDirectory, $targetDirectory, true, true, false);
+        }
+
         return true;
     }
 
     public function uninstallFiles()
     {
+        $wizardDirectory = Application::getDocumentRoot() . '/bitrix/wizards/vsech/multiverse';
+
+        if (Directory::isDirectoryExists($wizardDirectory)) {
+            Directory::deleteDirectory($wizardDirectory);
+
+            $vendorDirectory = dirname($wizardDirectory);
+            if (Directory::isDirectoryExists($vendorDirectory)) {
+                $vendor = new Directory($vendorDirectory);
+                if (empty($vendor->getChildren())) {
+                    Directory::deleteDirectory($vendorDirectory);
+                }
+            }
+        }
+
         return true;
     }
 
