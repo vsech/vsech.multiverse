@@ -1,38 +1,32 @@
-<?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
-	die();
+<?php
 
-if(!CModule::IncludeModule("iblock"))
-	return;
-	
-if(COption::GetOptionString("landing", "wizard_installed", "N", WIZARD_SITE_ID) == "Y")
-	return;
+use Bitrix\Main\Localization\Loc;
 
-$arTypes = Array(
-	Array(
-    'ID'=>'content_multiverse',
-    'SECTIONS'=>'Y',
-    'IN_RSS'=>'N',
-    'SORT'=>500,
-    'LANG'=>Array(
-        'ru'=>Array(
-            'NAME'=>GetMessage("IB_TYPE_NAME_content_multiverse"),
-            'SECTION_NAME'=>GetMessage("IB_TYPE_SECTION_NAME"),
-            'ELEMENT_NAME'=>GetMessage("IB_TYPE_ELEMENT_NAME"),
-            )
-        )
-    )
-);
-
-foreach($arTypes as $arType)
-{
-	$dbType = CIBlockType::GetList(Array(),Array("=ID" => $arType["ID"]));
-	if($dbType->Fetch())
-		continue;
-
-	$iblockType = new CIBlockType;
-	$iblockType->Add($arType);
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
+    die();
 }
 
-COption::SetOptionString('iblock','combined_list_mode','Y');
-?>
+Loc::loadMessages(__FILE__);
+require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/vsech.multiverse/include.php';
+
+$iblockInstaller = new \Vsech\Multiverse\Wizard\IblockInstaller();
+if (!$iblockInstaller->includeModule() || $iblockInstaller->isLandingWizardInstalled(WIZARD_SITE_ID)) {
+    return;
+}
+
+$iblockInstaller->ensureType(
+    [
+        'ID' => 'content_multiverse',
+        'SECTIONS' => 'Y',
+        'IN_RSS' => 'N',
+        'SORT' => 500,
+        'LANG' => [
+            'ru' => [
+                'NAME' => Loc::getMessage('IB_TYPE_NAME_content_multiverse'),
+                'SECTION_NAME' => Loc::getMessage('IB_TYPE_SECTION_NAME'),
+                'ELEMENT_NAME' => Loc::getMessage('IB_TYPE_ELEMENT_NAME'),
+            ],
+        ],
+    ]
+);
+$iblockInstaller->setCombinedListMode();
