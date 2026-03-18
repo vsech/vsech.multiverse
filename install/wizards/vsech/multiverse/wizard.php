@@ -27,6 +27,14 @@ class SiteSettingsStep extends CSiteSettingsWizardStep
         $wizard->solutionName = 'multiverse';
         parent::InitStep();
 
+        if (!$wizard->GetVar('templateID')) {
+            $wizard->SetDefaultVar('templateID', 'multiverse');
+        }
+
+        if ($wizard->GetVar('multiverse_themeID') === null) {
+            $wizard->SetDefaultVar('multiverse_themeID', '');
+        }
+
         $this->SetTitle(Loc::getMessage('wiz_settings'));
         $this->SetNextStep('data_install');
         $this->SetNextCaption(Loc::getMessage('wiz_install'));
@@ -47,7 +55,13 @@ class SiteSettingsStep extends CSiteSettingsWizardStep
 
     public function ShowStep()
     {
+        $wizard = $this->GetWizard();
+        $templateId = (string)($wizard->GetVar('templateID', true) ?: 'multiverse');
+        $themeId = (string)($wizard->GetVar('multiverse_themeID', true) ?: '');
+
         $this->content .= '<div class="wizard-input-form">';
+        $this->content .= $this->ShowHiddenField('templateID', $templateId);
+        $this->content .= $this->ShowHiddenField('multiverse_themeID', $themeId);
         $this->content .= '
         <div class="wizard-upload-img-block">
             <div class="wizard-catalog-title">' . Loc::getMessage('wiz_company_name') . '</div>
@@ -124,15 +138,16 @@ class FinishStep extends CFinishWizardStep
 
     private function getSiteUrl(): string
     {
-        $parsedHost = parse_url((string)getenv('HTTP_HOST'));
-        if (!isset($parsedHost['host'])) {
+        $host = (string)($_SERVER['HTTP_HOST'] ?? getenv('HTTP_HOST') ?? '');
+        if ($host === '') {
             return '';
         }
 
-        if (isset($parsedHost['port']) && !in_array((string)$parsedHost['port'], ['80', '443'], true)) {
-            return $parsedHost['host'] . ':' . $parsedHost['port'];
+        $host = preg_replace('/^https?:\/\//i', '', $host);
+        if ($host === null || $host === '') {
+            return '';
         }
 
-        return $parsedHost['host'];
+        return rtrim($host, '/');
     }
 }

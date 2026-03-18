@@ -10,6 +10,7 @@ Loc::loadMessages(__FILE__);
 require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/vsech.multiverse/include.php';
 
 $iblockInstaller = new \Vsech\Multiverse\Wizard\IblockInstaller();
+$fileDeployer = new \Vsech\Multiverse\Wizard\FileDeployer();
 if (!$iblockInstaller->includeModule()) {
     return;
 }
@@ -61,4 +62,4 @@ if ($iblockId === null) {
     $iblockInstaller->ensureSiteBinding($iblockId, WIZARD_SITE_ID);
 }
 
-CWizardUtil::ReplaceMacros(WIZARD_SITE_PATH . '/_index.php', ['EXPORT_IBLOCK_ID' => $iblockId]);
+$fileDeployer->replaceIndexMacros(WIZARD_SITE_PATH, ['EXPORT_IBLOCK_ID' => $iblockId]);

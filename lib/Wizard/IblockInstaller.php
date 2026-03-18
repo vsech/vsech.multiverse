@@ -6,7 +6,6 @@ use Bitrix\Iblock\IblockTable;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\GroupTable;
 use Bitrix\Main\Loader;
-use Bitrix\Main\UserOptions;
 
 final class IblockInstaller
 {
@@ -92,7 +91,7 @@ final class IblockInstaller
         string $siteId,
         array $permissions
     ): int {
-        return (int)WizardServices::ImportIBlockFromXML(
+        return (int)\WizardServices::ImportIBlockFromXML(
             $xmlFile,
             $iblockCode,
             $iblockType,
@@ -151,7 +150,7 @@ final class IblockInstaller
 
     public function saveElementFormSettings(int $iblockId, array $tabs): void
     {
-        UserOptions::setOption(
+        \CUserOptions::SetOption(
             'form',
             'form_element_' . $iblockId,
             ['tabs' => $this->buildTabsOptionValue($tabs)],

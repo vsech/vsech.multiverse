@@ -12,6 +12,9 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/vsech.multiverse/inclu
 
 $fileDeployer = new \Vsech\Multiverse\Wizard\FileDeployer();
 $sourcePath = str_replace('//', '/', WIZARD_ABSOLUTE_PATH . '/site/public/' . LANGUAGE_ID . '/');
+$templateId = defined('WIZARD_TEMPLATE_ID') && is_string(WIZARD_TEMPLATE_ID) && WIZARD_TEMPLATE_ID !== ''
+    ? WIZARD_TEMPLATE_ID
+    : (string)($wizard->GetVar('templateID', true) ?: 'multiverse');
 
 $fileDeployer->copyPublicFiles($sourcePath, WIZARD_SITE_PATH, WIZARD_SITE_ID);
 $fileDeployer->copyFavicon(WIZARD_THEME_ABSOLUTE_PATH, WIZARD_SITE_PATH);
@@ -24,4 +27,4 @@ $fileDeployer->replaceIndexMacros(
         'SITE_TITLE' => htmlspecialcharsbx($wizard->GetVar('siteName')),
     ]
 );
-$fileDeployer->copyTemplate(WIZARD_RELATIVE_PATH, WIZARD_TEMPLATE_ID);
+$fileDeployer->copyTemplate(WIZARD_RELATIVE_PATH, $templateId);

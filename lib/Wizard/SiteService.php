@@ -7,8 +7,12 @@ use Bitrix\Main\SiteTable;
 
 final class SiteService
 {
-    public function applyTemplate(string $siteId, string $templateId): void
+    public function applyTemplate(string $siteId, ?string $templateId): void
     {
+        if ($templateId === null || $templateId === '') {
+            return;
+        }
+
         $site = SiteTable::getList(
             [
                 'filter' => ['=LID' => $siteId],

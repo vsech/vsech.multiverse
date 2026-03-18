@@ -4,14 +4,13 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
     die();
 }
 
-if (!defined('WIZARD_TEMPLATE_ID')) {
-    return;
-}
-
 require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/vsech.multiverse/include.php';
 
 $fileDeployer = new \Vsech\Multiverse\Wizard\FileDeployer();
 $siteService = new \Vsech\Multiverse\Wizard\SiteService();
+$templateId = defined('WIZARD_TEMPLATE_ID') && is_string(WIZARD_TEMPLATE_ID) && WIZARD_TEMPLATE_ID !== ''
+    ? WIZARD_TEMPLATE_ID
+    : (string)($wizard->GetVar('templateID', true) ?: 'multiverse');
 
-$fileDeployer->copyTemplate(WIZARD_RELATIVE_PATH, WIZARD_TEMPLATE_ID);
-$siteService->applyTemplate(WIZARD_SITE_ID, WIZARD_TEMPLATE_ID);
+$fileDeployer->copyTemplate(WIZARD_RELATIVE_PATH, $templateId);
+$siteService->applyTemplate(WIZARD_SITE_ID, $templateId);
